@@ -1,34 +1,41 @@
 import { html, render } from 'lit-html';
 import { challenge1_backend } from 'declarations/challenge1_backend';
-import logo from './logo2.svg';
 
 class App {
-  greeting = '';
+  storedName = '';
 
   constructor() {
+    this.#fetchStoredName();
     this.#render();
   }
 
-  #handleSubmit = async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('name').value;
-    this.greeting = await challenge1_backend.greet(name);
+  // Fetch the stored name from the backend when the page loads
+  #fetchStoredName = async () => {
+    this.storedName = await challenge1_backend.greet();
     this.#render();
   };
 
+  // Handle the form submission to update the stored name
+  #handleSubmit = async (e) => {
+    e.preventDefault();
+    const newName = document.getElementById('name').value;
+    await challenge1_backend.updateName(newName);
+    this.storedName = await challenge1_backend.greet(); // Fetch the updated name
+    this.#render();
+  };
+
+  // Render the UI
   #render() {
     let body = html`
-      <main>
-        <img src="${logo}" alt="DFINITY logo" />
-        <br />
-        <br />
+      <div style="text-align: center; margin-top: 50px;">
+        <h1>Storing a text in the storage varaible</h1>
+        <p>Storage Variable: ${this.storedName}</p>
         <form action="#">
-          <label for="name">Enter your name: &nbsp;</label>
-          <input id="name" alt="Name" type="text" />
-          <button type="submit">Click Me!</button>
+          <label for="name">Enter a new text: &nbsp;</label>
+          <input id="name" type="text" />
+          <button type="submit">Update text</button>
         </form>
-        <section id="greeting">${this.greeting}</section>
-      </main>
+      </div>
     `;
     render(body, document.getElementById('root'));
     document
