@@ -3,15 +3,17 @@ import { challenge1_backend } from 'declarations/challenge1_backend';
 
 class App {
   storedName = '';
+  storedNumber = 0;
 
   constructor() {
-    this.#fetchStoredName();
+    this.#fetchStoredData();
     this.#render();
   }
 
-  // Fetch the stored name from the backend when the page loads
-  #fetchStoredName = async () => {
-    this.storedName = await challenge1_backend.greet();
+  // Fetch the stored name and number from the backend when the page loads
+  #fetchStoredData = async () => {
+    this.storedName = await challenge1_backend.readText();
+    this.storedNumber = await challenge1_backend.readNumber();
     this.#render();
   };
 
@@ -20,7 +22,13 @@ class App {
     e.preventDefault();
     const newName = document.getElementById('name').value;
     await challenge1_backend.updateName(newName);
-    this.storedName = await challenge1_backend.greet(); // Fetch the updated name
+    this.storedName = await challenge1_backend.readText(); // Fetch the updated name
+    this.#render();
+  };
+
+  // Handle the button click to increment the number
+  #handleIncrement = async () => {
+    this.storedNumber = await challenge1_backend.increment();
     this.#render();
   };
 
@@ -28,13 +36,16 @@ class App {
   #render() {
     let body = html`
       <div style="text-align: center; margin-top: 50px;">
-        <h1>Storing a text in the storage varaible</h1>
-        <p>Storage Variable: ${this.storedName}</p>
+        <h1>Storing Text and Number</h1>
+        <p>Stored Text: ${this.storedName}</p>
+        <p>Stored Number: ${this.storedNumber}</p>
         <form action="#">
           <label for="name">Enter a new text: &nbsp;</label>
           <input id="name" type="text" />
-          <button type="submit">Update text</button>
+          <button type="submit">Update Text</button>
         </form>
+        <br />
+        <button @click=${this.#handleIncrement}>Increment Number</button>
       </div>
     `;
     render(body, document.getElementById('root'));
